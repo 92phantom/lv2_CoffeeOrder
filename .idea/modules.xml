@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/App/App.iml" filepath="$PROJECT_DIR$/App/App.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CoffeeBrew/CoffeeBrew.iml" filepath="$PROJECT_DIR$/CoffeeBrew/CoffeeBrew.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Delivery/Delivery.iml" filepath="$PROJECT_DIR$/Delivery/Delivery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Order/Order.iml" filepath="$PROJECT_DIR$/Order/Order.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gateway/boot-camp-gateway.iml" filepath="$PROJECT_DIR$/gateway/boot-camp-gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/lv2_CoffeeOrder.iml" filepath="$PROJECT_DIR$/.idea/lv2_CoffeeOrder.iml" />
+    </modules>
+  </component>
+</project>
