@@ -3,13 +3,14 @@
 
 * Environment : Azure
 * Language : Springboot (JAVA)
-* Protocol : AMQP (Kafka)
-* Scenario : 
+* Protocol : HTTP
+* Middleware : Kafka
 
 1) Eventstorming
 
-![image](https://user-images.githubusercontent.com/75401920/104998076-f9929380-5a6d-11eb-8ac9-1ba95cea971f.png)
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/_brainstorming.png)
 
+## Scenario : 
 
 1) Funtional Requirement
 
