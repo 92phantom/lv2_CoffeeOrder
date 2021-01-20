@@ -33,6 +33,7 @@
   
   
 1. 주문(Order) 접수
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/01.order.png)
   
 2. 커피 제조 상태 확인 후 주문 취소 (취소 가능)
