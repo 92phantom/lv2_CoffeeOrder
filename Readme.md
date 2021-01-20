@@ -135,56 +135,80 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
 * kubectl expose deploy order --port=8080 --type=ClusterIP
 * kubectl expose deploy gateway --type=LoadBalancer --port=8080
 
+### Kubernetes Deploy Status
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_1%20Loadbalanced%20order%20call.png)
+  
+  
+### 부하테스트 timeout
+* 소스 수정
+* Order class
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_0%20thread_sleep%20setting%20capture.png)  
+  
+#### tutorial 네임스페이스에 Istio 기능 추가  
+* $ kubectl create namespace tutorial
+* $ kubectl label namespace tutorial istio-injection=enabled --overwrite
+
+#### 테스트용 Order deploy (yaml)
+* $ kubectl apply -f - <<EOF
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: order
+    namespace: tutorial
+    labels:
+      app: order
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: order
+    template:
+      metadata:
+        labels:
+          app: order
+      spec:
+        containers:
+          - name: order
+            image: skcc32.azurecr.io/order:v7
+            ports:
+              - containerPort: 8080
+            resources:
+              limits:
+                cpu: 500m
+              requests:
+                cpu: 200m
+EOF
+
+#### Expose Order service
+* $ kubectl expose deploy order --port=8080 -n tutorial
+
+#### Virtual network rule : 3sec timeout Order service
+* $ kubectl apply -f - <<EOF
+    apiVersion: networking.istio.io/v1alpha3
+    kind: VirtualService
+    metadata:
+      name: vs-order-network-rule
+      namespace: tutorial
+    spec:
+      hosts:
+      - order
+      http:
+      - route:
+        - destination:
+            host: order
+        timeout: 3s
+EOF
+
+#### 부하테스트 시작  
+  
+* (seige pod 생성) $ kubectl run siege --image=apexacme/siege-nginx -n tutorial
+* (seige 접속) $ kubectl exec -it siege -c siege -n tutorial -- /bin/bash
+* $ siege -c30 -t20S -v --content-type "application/json" 'http://order:8080/orders POST {"menu" : "americano", "qty" : "11", "status" : "ordered"}'
+
+#### 응답시간 3sec 초과시 timeout  
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_2%20istio_timeout.png)
 ---------------------------------------------------------------
-
-5.6 Gateway, Deploy
-
-product 상품 등록 
- - LoadBalanced로 노출된 퍼블릭IP로 상품등록 API 호출
-
-![image](https://user-images.githubusercontent.com/75401920/105001534-42008000-5a73-11eb-8ab7-c955745e7703.png)
-
-
-애져에 배포되어 있는 상황 조회 kubectl get all
-
-![image](https://user-images.githubusercontent.com/75401920/105000728-06b18180-5a72-11eb-8609-e527c48f7060.png)
-
-
-
-7. Istio 적용 캡쳐
-
-  - Istio테스트를 위해서 Payment에 sleep 추가
   
-![image](https://user-images.githubusercontent.com/75401920/105005616-e89b4f80-5a78-11eb-82cb-de53e5881e3f.png)
-
- - payments 서비스에 Istio 적용
-   
-![image](https://user-images.githubusercontent.com/75401920/105006822-7f1c4080-5a7a-11eb-9191-db35233773d3.png)
-
- - Istio 적용 후 seige 실행 시 대략 50%정도 확률로 CB가 열려서 처리됨
-
-![image](https://user-images.githubusercontent.com/75401920/105006958-b2f76600-5a7a-11eb-99f3-c8b81a4ec270.png)
-
-8. AutoScale
-
- - AutoScale 적용된 모습
-
-![image](https://user-images.githubusercontent.com/75401920/105006642-4714fd80-5a7a-11eb-8424-aa2dede45666.png)
-
- - AutoScale로  order pod 개수가 증가함
-
-![image](https://user-images.githubusercontent.com/75401920/105006308-cf46d300-5a79-11eb-96db-77d865c9bfe9.png)
-
-
-9. Readness Proobe
- 
-  - Readiness 적용 전: 소스배포시 500 오류 발생
+- Reference : http://msaschool.io/#/%EC%84%A4%EA%B3%84--%EA%B5%AC%ED%98%84--%EC%9A%B4%EC%98%81%EB%8B%A8%EA%B3%84/07_%EC%9A%B4%EC%98%81/04_%EC%BB%A8%ED%85%8C%EC%9D%B4%EB%84%88%20%EC%98%A4%EC%BC%80%EC%8A%A4%ED%8A%B8%EB%A0%88%EC%9D%B4%EC%85%98
   
-![image](https://user-images.githubusercontent.com/75401920/105004548-7d04b280-5a77-11eb-95cb-d5fe19a40557.png)
-
-
-  - 적용 후: 소스배포시 100% 수행됨
-
-![image](https://user-images.githubusercontent.com/75401920/105004912-f0a6bf80-5a77-11eb-88ee-f0bcd8f67f45.png)
-
 - 체크포인트 : https://workflowy.com/s/assessment-check-po/T5YrzcMewfo4J6LW
