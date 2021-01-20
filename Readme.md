@@ -12,7 +12,7 @@
 
 ## Scenario 
   
-1) Funtional Requirement
+### Funtional Requirement
   
   1. 고객은 커피를 주문한다.
   2. 주문이 접수되면, 커피 제조(Coffe Brew)로 주문이 전달된다.
@@ -21,7 +21,7 @@
   5. 커피를 취소하면 커피 제조를 취소하고 알림이 전달된다.
   6. 고객은 주문한 커피에 대해 제조 상태, 배송 상태를 조회할 수 있다.
   
-2) Non-funtional Requirement
+### Non-funtional Requirement
   
   1. 커피 제조 상태가 조회되지 않으면 취소 불가능하다. (동기식 호출)
   2. 커피 제조 상태가 조회되지 않으면 취소요청을 보류한다.
@@ -121,11 +121,11 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
 
 ### Service Deploy and Expose
 
-#### 1. Image pull and deploy
+#### 1. Image pull and deploy(version 1)
 * kubectl create deploy app --image=skcc32.azurecr.io/app:v1
 * kubectl create deploy coffeebrew --image=skcc32.azurecr.io/coffeebrew:v1
 * kubectl create deploy delivery --image=skcc32.azurecr.io/delivery:v1
-* kubectl create deploy order --image=skcc32.azurecr.io/gateway:v1
+* kubectl create deploy order --image=skcc32.azurecr.io/order:v1
 * kubectl create deploy gateway --image=skcc32.azurecr.io/gateway:v1
 
 #### 2. Image pull and deploy
@@ -140,72 +140,29 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
   
   
 ### 부하테스트 timeout
-* 소스 수정
-* Order class
+
+#### 1. 소스 수정(Order class)  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_0%20thread_sleep%20setting%20capture.png)  
   
-#### tutorial 네임스페이스에 Istio 기능 추가  
+#### 2. tutorial 네임스페이스에 Istio 기능 추가  
 * $ kubectl create namespace tutorial
 * $ kubectl label namespace tutorial istio-injection=enabled --overwrite
 
-#### 테스트용 Order deploy (yaml)
-* $ kubectl apply -f - <<EOF
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: order
-    namespace: tutorial
-    labels:
-      app: order
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
-        app: order
-    template:
-      metadata:
-        labels:
-          app: order
-      spec:
-        containers:
-          - name: order
-            image: skcc32.azurecr.io/order:v7
-            ports:
-              - containerPort: 8080
-            resources:
-              limits:
-                cpu: 500m
-              requests:
-                cpu: 200m
-EOF
-
-#### Expose Order service
+#### [3. 테스트용 Order service deploy](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)  
+* $ kubectl apply -f order_timeout.yaml
+  
+#### 4. Expose Order service
 * $ kubectl expose deploy order --port=8080 -n tutorial
 
-#### Virtual network rule : 3sec timeout Order service
-* $ kubectl apply -f - <<EOF
-    apiVersion: networking.istio.io/v1alpha3
-    kind: VirtualService
-    metadata:
-      name: vs-order-network-rule
-      namespace: tutorial
-    spec:
-      hosts:
-      - order
-      http:
-      - route:
-        - destination:
-            host: order
-        timeout: 3s
-EOF
+#### [5. Virtual network rule : 3sec timeout Order service](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/virtualservice_order.yaml)
+* $ kubectl apply -f virtualservice_order.yaml
 
-#### 부하테스트 시작  
-  
+#### 6. 부하테스트 시작  
 * (seige pod 생성) $ kubectl run siege --image=apexacme/siege-nginx -n tutorial
 * (seige 접속) $ kubectl exec -it siege -c siege -n tutorial -- /bin/bash
 * $ siege -c30 -t20S -v --content-type "application/json" 'http://order:8080/orders POST {"menu" : "americano", "qty" : "11", "status" : "ordered"}'
 
-#### 응답시간 3sec 초과시 timeout  
+#### 7. 응답시간 3sec 초과시 timeout  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_2%20istio_timeout.png)
 ---------------------------------------------------------------
   
