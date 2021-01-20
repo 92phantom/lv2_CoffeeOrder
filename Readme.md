@@ -140,72 +140,29 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
   
   
 ### 부하테스트 timeout
-* 소스 수정
-* Order class
+
+#### 1. 소스 수정(Order class)  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_0%20thread_sleep%20setting%20capture.png)  
   
-#### tutorial 네임스페이스에 Istio 기능 추가  
+#### 2. tutorial 네임스페이스에 Istio 기능 추가  
 * $ kubectl create namespace tutorial
 * $ kubectl label namespace tutorial istio-injection=enabled --overwrite
 
-#### 테스트용 Order deploy (yaml)
-* $ kubectl apply -f - <<EOF
-  apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: order
-    namespace: tutorial
-    labels:
-      app: order
-  spec:
-    replicas: 1
-    selector:
-      matchLabels:
-        app: order
-    template:
-      metadata:
-        labels:
-          app: order
-      spec:
-        containers:
-          - name: order
-            image: skcc32.azurecr.io/order:v7
-            ports:
-              - containerPort: 8080
-            resources:
-              limits:
-                cpu: 500m
-              requests:
-                cpu: 200m
-EOF
-
-#### Expose Order service
+#### 3. 테스트용 Order service deploy (https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)  
+* $ kubectl apply -f order_timeout.yaml
+  
+#### 4. Expose Order service(https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)
 * $ kubectl expose deploy order --port=8080 -n tutorial
 
-#### Virtual network rule : 3sec timeout Order service
-* $ kubectl apply -f - <<EOF
-    apiVersion: networking.istio.io/v1alpha3
-    kind: VirtualService
-    metadata:
-      name: vs-order-network-rule
-      namespace: tutorial
-    spec:
-      hosts:
-      - order
-      http:
-      - route:
-        - destination:
-            host: order
-        timeout: 3s
-EOF
+#### 5. Virtual network rule : 3sec timeout Order service (https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/virtualservice_order.yaml)
+* $ kubectl apply -f virtualservice_order.yaml
 
-#### 부하테스트 시작  
-  
+#### 6. 부하테스트 시작  
 * (seige pod 생성) $ kubectl run siege --image=apexacme/siege-nginx -n tutorial
 * (seige 접속) $ kubectl exec -it siege -c siege -n tutorial -- /bin/bash
 * $ siege -c30 -t20S -v --content-type "application/json" 'http://order:8080/orders POST {"menu" : "americano", "qty" : "11", "status" : "ordered"}'
 
-#### 응답시간 3sec 초과시 timeout  
+#### 7. 응답시간 3sec 초과시 timeout  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_2%20istio_timeout.png)
 ---------------------------------------------------------------
   
