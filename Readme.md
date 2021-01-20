@@ -148,13 +148,13 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
 * $ kubectl create namespace tutorial
 * $ kubectl label namespace tutorial istio-injection=enabled --overwrite
 
-#### 3. 테스트용 Order service deploy (https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)  
+#### [3. 테스트용 Order service deploy](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)  
 * $ kubectl apply -f order_timeout.yaml
   
-#### 4. Expose Order service(https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/order_timeout.yaml)
+#### 4. Expose Order service
 * $ kubectl expose deploy order --port=8080 -n tutorial
 
-#### 5. Virtual network rule : 3sec timeout Order service (https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/virtualservice_order.yaml)
+#### [5. Virtual network rule : 3sec timeout Order service](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/test_yaml/virtualservice_order.yaml)
 * $ kubectl apply -f virtualservice_order.yaml
 
 #### 6. 부하테스트 시작  
