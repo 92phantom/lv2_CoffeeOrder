@@ -70,47 +70,72 @@
 ### 7. gateway에서 API조회
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/0.gateway%EC%97%90%EC%84%9C%20api%EB%93%A4%EC%A1%B0%ED%9A%8C.png)
 
- - 주문 등록
+## Operation 
+  
+### Environment Setting
 
-![image](https://user-images.githubusercontent.com/75401920/105002099-1b8f1480-5a74-11eb-957f-26f060d0bc5f.png)
+### @Msaez
+Azure에서 Resource Group 생성: skcc10169-rsrcgrp
 
- - 주문 등록 후 주문내역 조회 시 배송상태 변경됨 
+1. az login  
+2. az aks create --resource-group skcc10169-rsrcgrp --name skcc32-cluster --node-count 4 --enable-addons monitoring --generate-ssh-keys  
+3. az acr create --resource-group skcc10169-rsrcgrp --name skcc32 --sku Basic  
+4. az acr login --name skcc32  
+5. az aks update -n skcc32-cluster -g skcc10169-rsrcgrp --attach-acr skcc32  
 
-![image](https://user-images.githubusercontent.com/75401920/105001784-a3c0ea00-5a73-11eb-9c83-1d504502bca3.png)
+6. UPLOAD PROJECT  
+7. (해당 경로로 이동) cd order  
+8. mvn package  
+9. (Azure에 Docker order v1 image 올리기) az acr build --registry skcc32 --image skcc32.azurecr.io/order:v1 .
 
- - 주문 등록 후 결제 내역 조회
+### @Azure
 
-![image](https://user-images.githubusercontent.com/75401920/105001881-c81cc680-5a73-11eb-8b94-c25d03309a84.png)
+1. helm install 
 
- - 재고변경
+* curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+* chmod 700 get_helm.sh
+* ./get_helm.sh
+* helm version
 
-![image](https://user-images.githubusercontent.com/75401920/105002205-3e212d80-5a74-11eb-9d3a-469df1f27d49.png)
+2. helm으로 Ingress Controller install
 
- - 주문취소
+* helm repo add stable https://charts.helm.sh/stable
+* helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+* helm repo update
+* kubectl create namespace ingress-basic
+* (helm version 3.x 일때) helm install nginx-ingress ingress-nginx/ingress-nginx --namespace=ingress-basic
+* (설치확인) kubectl get all --namespace=ingress-basic
 
-![image](https://user-images.githubusercontent.com/75401920/105002335-6dd03580-5a74-11eb-860d-66d4062bd18f.png)
+3. kafka install 
+* kubectl --namespace kube-system create sa tiller
+* kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+* helm repo add incubator https://charts.helm.sh/incubator
+* helm repo update
+* kubectl create ns kafka
+* helm install my-kafka --namespace kafka incubator/kafka
+* (kafka 수행 확인) kubectl get all -n kafka
+  
+4. [부하테스트 툴] siege
+* kubectl run siege --image=ghcr.io/gkedu/siege-nginx 
+* kubectl exec -it siege -c siege -- /bin/bash
 
- - 주문취소 시 결제 취소 반영됨
+### Service Deploy and Expose
 
-![image](https://user-images.githubusercontent.com/75401920/105002401-95270280-5a74-11eb-89c9-069db87220e6.png)
+#### 1. Image pull and deploy
+* kubectl create deploy app --image=skcc32.azurecr.io/app:v1
+* kubectl create deploy coffeebrew --image=skcc32.azurecr.io/coffeebrew:v1
+* kubectl create deploy delivery --image=skcc32.azurecr.io/delivery:v1
+* kubectl create deploy order --image=skcc32.azurecr.io/gateway:v1
+* kubectl create deploy gateway --image=skcc32.azurecr.io/gateway:v1
 
- - 결제취소시 배송 취소
- 
-![image](https://user-images.githubusercontent.com/75401920/105002466-acfe8680-5a74-11eb-91ba-bc04509a8b10.png)
+#### 2. Image pull and deploy
+* kubectl expose deploy app --port=8080 --type=ClusterIP
+* kubectl expose deploy coffeebrew --port=8080 --type=ClusterIP
+* kubectl expose deploy delivery --port=8080 --type=ClusterIP
+* kubectl expose deploy order --port=8080 --type=ClusterIP
+* kubectl expose deploy gateway --type=LoadBalancer --port=8080
 
-
-2. 마이페이지 조회
-
-![image](https://user-images.githubusercontent.com/75401920/105002605-e8995080-5a74-11eb-99ad-15cdb20324ad.png)
-
-
-3. 결제서비스 장애 시 주문 불가
-
-![image](https://user-images.githubusercontent.com/75401920/105002912-52b1f580-5a75-11eb-8ce0-b661fbbcc1d3.png)
-
-
-
-   
+---------------------------------------------------------------
 
 5.6 Gateway, Deploy
 
