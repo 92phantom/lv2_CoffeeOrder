@@ -32,32 +32,42 @@
 분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트로 구현하였다. 
   
   
-1. 주문(Order) 접수
+### 1. 주문(Order) 접수
   
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/01.order.png)
   
-2. 커피 제조 상태 확인 후 주문 취소 (취소 가능)
+
+### 2. 커피 제조 상태 확인 후 주문 취소 (취소 가능)
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/01-2.order_success_1.png)
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/01-2.order_success_2.png)
 
-3. 커피 제조 상태 확인 후 주문 취소 (취소 불가)
+
+### 3. 커피 제조 상태 확인 후 주문 취소 (취소 불가)
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/01-3.order_cancel_fail.png)
   
-4. 커피 제조 완료
+
+### 4. 커피 제조 완료
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/02.%20brewComplete.png)
   
-5. 커피 제조 완료 이후 배송 완료
+
+### 5. 커피 제조 완료 이후 배송 완료
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/03.%20Delivery.png)
   
-6. 유저앱에서 커피 상태조회  
- 6-1. 커피 주문 접수 조회
-![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04-1.%20Userapp_order.png)
- 6-2. 커피 제조 완료 조회
-![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04-2.%20Userapp_brew.png)
- 6-3. 배송완료 조회
-![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04.%20Userapp_delivery.png)
 
-7. gateway에서 API조회
+### 6. 유저앱에서 커피 상태조회
+  
+###  6-1. 커피 주문 접수 조회
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04-1.%20Userapp_order.png)
+  
+
+###  6-2. 커피 제조 완료 조회
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04-2.%20Userapp_brew.png)
+
+###  6-3. 배송완료 조회
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/04.%20Userapp_delivery.png)
+  
+
+### 7. gateway에서 API조회
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/0.gateway%EC%97%90%EC%84%9C%20api%EB%93%A4%EC%A1%B0%ED%9A%8C.png)
 
  - 주문 등록
