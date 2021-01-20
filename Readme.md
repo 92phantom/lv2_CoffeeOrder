@@ -138,7 +138,16 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
 ### Kubernetes Deploy Status
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_1%20Loadbalanced%20order%20call.png)
   
-  
+
+### Auto Scaling
+
+* $ kubectl autoscale deployment order --cpu-percent=15 --min=1 --max=10
+* $ kubectl get hpa order -o yaml
+* $ kubectl exec -it siege -c siege -- /bin/bash
+* $ siege -c30 -t60S -v --content-type "application/json" 'http://order:8080/orders POST {"menu" : "americano", "qty" : "11", "status" : "ordered"}'
+* Scale-out 
+![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_3.%20auto_scale.png)  
+
 ### 부하테스트 timeout
 
 #### 1. 소스 수정(Order class)  
