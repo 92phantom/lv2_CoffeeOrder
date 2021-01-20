@@ -18,6 +18,12 @@ public class PolicyHandler{
     @Autowired
     CoffeeBrewRepository coffeeBrewRepository;
 
+    public CoffeeBrew findByOrderId(Long orderID){
+
+        return coffeeBrewRepository.findByOrderId(orderID);
+
+    }
+
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverOrdered_(@Payload Ordered ordered){
 

@@ -28,8 +28,6 @@ public class CoffeeBrew {
         BrewCompleted brewCompleted = new BrewCompleted();
         BeanUtils.copyProperties(this, brewCompleted);
 
-        System.err.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@"+this.getStatus());
-
         brewCompleted.publishAfterCommit();
     }
 
