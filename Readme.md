@@ -143,31 +143,39 @@ Azure에서 Resource Group 생성: skcc10169-rsrcgrp
   
 #### Readiness  
 * readiness 세팅 전 변경 배포 시 5xx Error
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_readiness_before.png)
 * readiness 세팅 후 변경 배포 시 (readiness 적용된 service를 버전 변경하여 배포 테스트)
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_readiness_afterpng.png)
 * readiness 세팅 yaml
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_readiness_after_yaml.png)
   
 #### Liveness  
-* liveness 세팅 yaml (8080 포트로 order 서비스 배포 -> 8081로 heartbeat 체크)
+* liveness 세팅 yaml (8080 포트로 order 서비스 배포 -> 8081로 heartbeat 체크)  
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_liveness_yaml.png)
   
-* liveness 적용 후 
+* liveness 적용 후  
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_liveness_monitor.png)
 
 
 ### ConfigMap
   
 * nodejs 서버에서 hello-cm configmap의 language 값을 참조하도록 세팅
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_configmap.png)
   
 ### Persistent volume (Pod 간 Shared memory)
   
 * Persistent volmue (name : azure-managed-disk, shared memory)생성
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_persistent_volume_1.png)
 
 * pod를 persistent volume을 공유할수 있도록 생성하여 해당 persistent volume이 조회되는지 확인
+  
 ![image](https://github.com/92phantom/lv2_CoffeeOrder/blob/main/_report/O_persistent_volume_2.png)
   
   
